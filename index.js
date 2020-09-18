@@ -40,7 +40,8 @@ app.post('/reqister', (req, res) => {
   //MongDB에 저장한다. 
   user.save((err, uesrInfo) => {
     //실패
-    if (err) return res.json({success : false, err})
+    if (err) 
+      return res.json({success : false, err})
     //성공 
     return res.status(200).json({
       success : true
