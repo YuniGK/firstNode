@@ -68,5 +68,5 @@ userSchema.pre('save', function(next){
 //모델(데이터)과 스키마를 감싼다.
 const User = mongoose.model('User', userSchema)
 
-//다른곳에서 사용이 가능하도록 설정한다.
+//다른곳에서 사용이 가능하도록 설정한다. 모듈화 시켜, 외부에서 사용이 가능하도록 한다.
 module.exports = {User}

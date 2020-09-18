@@ -1,4 +1,7 @@
 //포트 설정
+
+/* require - 모듈을 불러온다.
+require('express') - express 인자로 받아온다. */
 const express = require('express')
 const app = express()
 const port = 5000
