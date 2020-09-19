@@ -33,6 +33,7 @@ const {User} = require("./models/User")
 
 //MongDB를 mongoose를 통해서 사용한다.
 const mongoose = require('mongoose')
+
 const auth = require('./middleware/auth')
 mongoose.connect(config.mongoURI, {
     useNewUrlParser:true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false

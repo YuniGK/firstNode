@@ -16,11 +16,11 @@ let auth = (req, res, next) => {
             err : true
         })
 
-        req.token = token
-        req.user = user
+        req.token = token;
+        req.user = user;
 
-        next()
+        next();
     })
 }
 
-module.exports = {auth}
+module.exports = {auth};

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 /* bcrypt를 통한 암호화를 위해서는 salt생성 후, 암호화한다.
 saltRounds = 몇글자인지 나타낸다.*/
@@ -62,8 +62,8 @@ userSchema.pre('save', function(next){
                 user.password = hash
 
                 next()
-            });
-        });
+            })
+        })
     }else{
         next()
     }    
@@ -76,8 +76,9 @@ userSchema.methods.comparePassword = function(plainPwd, cb){
         if(err){
                 /* 비밀번호가 일치하지 않을 경우 callback
                    비밀번호가 일치하면, err = null, isMatch = true */
-            return cb(err), cb(null, isMatch)
+            return cb(err)
         }
+        cb(null, isMatch)
     })
 }
 
@@ -92,7 +93,7 @@ userSchema.methods.generateToken = function(cb) {
     user.token = token
 
     user.save(function(err, user){
-        if(err) return(err)
+        if(err) return cb(err)
         cb(null, user)
     })
 
