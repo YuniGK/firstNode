@@ -23,6 +23,8 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 //cookie-parser option ----------------
 
+const {Auth} = require("./middleware/auth")
+
 //MongDB를 연결하기 위한 key값
 const config = require("./config/key")
 
@@ -31,6 +33,7 @@ const {User} = require("./models/User")
 
 //MongDB를 mongoose를 통해서 사용한다.
 const mongoose = require('mongoose')
+const auth = require('./middleware/auth')
 mongoose.connect(config.mongoURI, {
     useNewUrlParser:true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false
 }).then(() => console.log('MongDB Connected.')).catch(err => console.log(err))
@@ -42,7 +45,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!!!')
 })
 
-app.post('/reqister', (req, res) => {
+app.post('/api/users/reqister', (req, res) => {
   /* 회원 가입 시, 필요한 정보를 데이터베이스에 넣어준다. */
   //인스턴스 생성
                       //요청 정보, body에 넣는다. json 형식 {name : "name"}
@@ -61,7 +64,7 @@ app.post('/reqister', (req, res) => {
 
 })
 
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
 
   //데이터 베이스에 이메일 있는지 확인
   User.findOne({email : req.body.email}, (err, user) => {
@@ -96,6 +99,23 @@ app.post('/login', (req, res) => {
     })
 
   })
+})
+
+app.get('/api/users/auth', auth, (req, res) => {
+  
+  //auth 미들웨어 통과, 인증처리는 참이다. 
+  res.status(200).json({
+    //auth에서 user를 넣었기에 사용이 가능하다.
+    _id : req.user._id,
+    isAdmin : req.user.role === 0 ? false : true,
+    isAuth : true,
+    email : req.user.email,
+    name : req.user.name,
+    lastname : req.user.lastname,
+    role : req.user.role,
+    image : req.user.image
+  })
+
 })
 
 /* ---------------------------------- */
