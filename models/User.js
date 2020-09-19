@@ -1,11 +1,12 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 /* bcrypt를 통한 암호화를 위해서는 salt생성 후, 암호화한다.
 saltRounds = 몇글자인지 나타낸다.*/
 const saltRounds = 10;
 
-//DB 스키마 작성
+//DB 스키마 작성 -----------------------------------------
 const userSchema = mongoose.Schema({
     name : {
         type : String,
@@ -36,6 +37,7 @@ const userSchema = mongoose.Schema({
     //유효기간
     tokenExp : Number
 })
+// end DB 스키마 작성 -----------------------------------------
 
 //데이터를 저장하기 전에 먼저 수행된다.
 userSchema.pre('save', function(next){
@@ -62,8 +64,38 @@ userSchema.pre('save', function(next){
                 next()
             });
         });
+    }else{
+        next()
     }    
 })
+
+//comparePassword 메소드
+                                                //callback
+userSchema.methods.comparePassword = function(plainPwd, cb){
+    bcrypt.compare(plainPwd, this.password, function(err, isMatch){
+        if(err){
+                /* 비밀번호가 일치하지 않을 경우 callback
+                   비밀번호가 일치하면, err = null, isMatch = true */
+            return cb(err), cb(null, isMatch)
+        }
+    })
+}
+
+//토큰생성
+userSchema.methods.generateToken = function(cb) {
+    var user = this;
+
+    //jsonwebtoken을 이용한 Token 생성 user._id+token형식으로 변경된다.
+    var token = jwt.sign(user._id.toHexString(), 'secretToken')
+
+    //데이터베이스에 넣어준다.
+    user.token = token
+
+    user.save(function(err, user){
+        if(err) return(err), cb(null, user)
+    })
+
+}
 
 //모델(데이터)과 스키마를 감싼다.
 const User = mongoose.model('User', userSchema)

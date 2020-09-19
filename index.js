@@ -6,14 +6,22 @@ const express = require('express')
 const app = express()
 const port = 5000
 
+//쿠키에 저장할 수 있도록 한다.
+const cookieParser = require('cookie-parser')
+
 //Body-parser 미들웨어 - 클라이언트의 정보를 가지고 온다.
 const bodyParser = require('body-parser')
 
-//Body-parser option
+//Body-parser option ----------------
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended : true}))
 //application/json
 app.use(bodyParser.json())
+//Body-parser option ----------------
+
+//cookie-parser option ----------------
+app.use(cookieParser())
+//cookie-parser option ----------------
 
 //MongDB를 연결하기 위한 key값
 const config = require("./config/key")
@@ -51,6 +59,43 @@ app.post('/reqister', (req, res) => {
     })
   })
 
+})
+
+app.post('/login', (req, res) => {
+
+  //데이터 베이스에 이메일 있는지 확인
+  User.findOne({email : req.body.email}, (err, user) => {
+    if(!user){
+      return res.json({
+        loginSuccess : false,
+        message : "이메일에 해당하는 유저가 없습니다."
+      })
+    }
+
+    //이메일이 있다면, 비밀번호가 맞는지 확인
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if(!isMatch){
+        return res.json({
+          loginSuccess : false,
+          message : "비밀번호가 틀렸습니다."
+        })
+      }
+
+      //토큰 생성
+      user.generateToken((err, user) => {
+        if(err) return res.status(400).send(err)
+
+        /* 토큰을 저장한다, 저장장소는 쿠키, 로컬스토리지가 있다. - 쿠키에 저장했다. 
+        x_auth이름으로 user.token의 내용을 저장한다. */
+        res.cookie("x_auth", user.token).status(200).json({
+          loginSuccess : true,
+          userId : user._id 
+        })
+      })
+
+    })
+
+  })
 })
 
 /* ---------------------------------- */
